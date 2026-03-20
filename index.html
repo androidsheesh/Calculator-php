@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="A modern grade calculator supporting Lecture and Laboratory grading with configurable exam percentages." />
+  <title>Grade Calculator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- Error Toast -->
+  <div id="errorToast" class="error-toast"></div>
+
+  <div class="app-wrapper">
+
+    <!-- ===== Header ===== -->
+    <header class="app-header">
+      <h1>Grade Calculator</h1>
+      <p>Compute your final grade with customizable exam weights</p>
+      <div class="weight-badges">
+        <span class="weight-badge lecture"><span class="dot"></span>Lecture — 30%</span>
+        <span class="weight-badge lab"><span class="dot"></span>Laboratory — 70%</span>
+      </div>
+    </header>
+
+    <!-- ===== Mode Selector ===== -->
+    <div class="mode-selector" id="modeSelector">
+      <button type="button" class="mode-btn active" data-mode="both" onclick="setMode('both')">
+        <span class="mode-icon">📊</span>
+        <span class="mode-label">Both</span>
+        <span class="mode-desc">Lecture + Lab</span>
+      </button>
+      <button type="button" class="mode-btn" data-mode="lecture" onclick="setMode('lecture')">
+        <span class="mode-icon">📖</span>
+        <span class="mode-label">Lecture Only</span>
+        <span class="mode-desc">30% weight</span>
+      </button>
+      <button type="button" class="mode-btn" data-mode="laboratory" onclick="setMode('laboratory')">
+        <span class="mode-icon">🔬</span>
+        <span class="mode-label">Lab Only</span>
+        <span class="mode-desc">70% weight</span>
+      </button>
+    </div>
+
+    <!-- ===== Grade Sections ===== -->
+    <div class="sections-grid">
+
+      <!-- Lecture Card -->
+      <section class="grade-card lecture" id="lectureSection">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="icon">📖</div>
+            <h2>Lecture <span class="weight-tag">30%</span></h2>
+          </div>
+        </div>
+        <div class="card-body">
+          <table class="exam-table">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Score</th>
+                <th>Total</th>
+                <th>Weight %</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="lectureExams">
+              <tr>
+                <td><input type="text" class="input-field" name="examName" placeholder="e.g. First Exam" /></td>
+                <td><input type="number" class="input-field" name="score" placeholder="0" min="0" step="any" /></td>
+                <td><input type="number" class="input-field" name="totalScore" placeholder="50" min="1" step="any" />
+                </td>
+                <td><input type="number" class="input-field" name="percentage" placeholder="50%" min="0" max="100"
+                    step="any" /></td>
+                <td><button type="button" class="btn btn-remove" title="Remove row" onclick="removeRow(this)">✕</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pct-warning" id="lecturePctWarning">⚠️ Percentages do not add up to 100%</div>
+          <button type="button" class="btn btn-add" id="addLectureBtn" onclick="addRow('lectureExams')">＋ Add
+            Exam</button>
+        </div>
+      </section>
+
+      <!-- Laboratory Card -->
+      <section class="grade-card laboratory" id="labSection">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="icon">🔬</div>
+            <h2>Laboratory <span class="weight-tag">70%</span></h2>
+          </div>
+        </div>
+        <div class="card-body">
+          <table class="exam-table">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Score</th>
+                <th>Total</th>
+                <th>Weight %</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="labExams">
+              <tr>
+                <td><input type="text" class="input-field" name="examName" placeholder="e.g. Lab 1" /></td>
+                <td><input type="number" class="input-field" name="score" placeholder="0" min="0" step="any" /></td>
+                <td><input type="number" class="input-field" name="totalScore" placeholder="100" min="1" step="any" />
+                </td>
+                <td><input type="number" class="input-field" name="percentage" placeholder="50%" min="0" max="100"
+                    step="any" /></td>
+                <td><button type="button" class="btn btn-remove" title="Remove row" onclick="removeRow(this)">✕</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pct-warning" id="labPctWarning">⚠️ Percentages do not add up to 100%</div>
+          <button type="button" class="btn btn-add" id="addLabBtn" onclick="addRow('labExams')">＋ Add Exam</button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ===== Action Buttons ===== -->
+    <button type="button" class="btn btn-calculate" id="calculateBtn" onclick="calculate()">Calculate Grade</button>
+    <button type="button" class="btn btn-reset" id="resetBtn" onclick="resetAll()">Reset All</button>
+
+    <!-- ===== Results ===== -->
+    <div class="result-panel" id="resultPanel">
+      <div class="result-card">
+        <div class="result-header">
+          <div class="icon">✅</div>
+          <h2>Results</h2>
+        </div>
+        <div class="result-body">
+          <div class="result-items" id="resultItems">
+            <div class="result-item lecture-result" id="lectureResultItem">
+              <div class="label">Lecture Grade</div>
+              <div class="value" id="lectureGradeValue">—</div>
+              <div class="sub">Weight: 30%</div>
+            </div>
+            <div class="result-item lab-result" id="labResultItem">
+              <div class="label">Laboratory Grade</div>
+              <div class="value" id="labGradeValue">—</div>
+              <div class="sub">Weight: 70%</div>
+            </div>
+            <div class="result-item final-result" id="finalResultItem">
+              <div class="label">Final Grade</div>
+              <div class="value" id="finalGradeValue">—</div>
+              <div class="sub" id="finalGradeSub">Lecture × 0.30 + Lab × 0.70</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
